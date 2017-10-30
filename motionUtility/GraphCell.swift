@@ -39,11 +39,15 @@ class Graph: UIView {
     let (min, max) = (visible.min()!, visible.max()!)
     let value = history[index]
     let maxVisible = Int(rect.width / columnWidth)
-    let x = CGFloat(index) * columnWidth
     let xOffset = CGFloat(history.count - maxVisible) * columnWidth
+    let x = CGFloat(index) * columnWidth - Swift.max(0, xOffset)
+    let y = rect.height - (rect.height * CGFloat(value - min) / CGFloat(max - min))
+
+    let yInset: CGFloat = 2
+
     return CGPoint(
-      x: x - Swift.max(0, xOffset),
-      y: rect.height * CGFloat(value - min) / CGFloat(max - min)
+      x: x,
+      y: Swift.max(yInset, Swift.min(rect.height - yInset, y))
     )
   }
 
