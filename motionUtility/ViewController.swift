@@ -121,7 +121,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
 
       logHistory(for: "Attitude roll", attitude.roll)
       logHistory(for: "Attitude pitch", attitude.pitch)
-      logHistory(for: "Altitude yaw", attitude.yaw)
+      logHistory(for: "Attitude yaw", attitude.yaw)
 
       let deviceMotionParams: [Param] = [
         ("Attitude roll", "\(attitude.roll)"),
