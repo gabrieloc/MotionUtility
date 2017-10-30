@@ -44,12 +44,13 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   var params = [Section: [Param]]()
 
   enum Section: String {
+    case config = "Config"
     case location = "Location"
     case accelerometer = "Accelerometer"
     case gyro = "Gyroscope"
     case motion = "Device Motion"
 
-    static let all: [Section] = [.location, .accelerometer, .gyro, .motion]
+    static let all: [Section] = [.config, .location, .accelerometer, .gyro, .motion]
   }
 
   let updateInterval: TimeInterval = 1.0/60.0
@@ -61,6 +62,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
 
     mapView.showsUserLocation = true
 
+    locationManager.desiredAccuracy = currentOption.accuracy
     locationManager.delegate = self
     locationManager.requestWhenInUseAuthorization()
     locationManager.startUpdatingLocation()
@@ -73,8 +75,41 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     motionManager.startDeviceMotionUpdates()
     motionManager.startMagnetometerUpdates()
 
-//    tableView.rowHeight = UITableViewAutomaticDimension
     tableView.reloadData()
+  }
+
+  var currentOption: LocationConfigOption = .best {
+    didSet {
+      tableView.reloadSections([0], with: .none)
+      locationManager.stopUpdatingLocation()
+      locationManager.desiredAccuracy = currentOption.accuracy
+      locationManager.startUpdatingLocation()
+    }
+  }
+
+  enum LocationConfigOption: String {
+    case bestForNavigation, best, tenMeters, hundredMeters, kilometer, threeKilometers
+    static let all: [LocationConfigOption] = [.bestForNavigation, .best, .tenMeters, .hundredMeters, .kilometer, .threeKilometers]
+
+    var displayValue: String {
+      return rawValue.unicodeScalars.reduce("") {
+        if CharacterSet.uppercaseLetters.contains($1), $0.characters.count > 0 {
+          return ($0 + " " + String($1))
+        }
+        return $0 + String($1)
+      }.capitalized
+    }
+
+    var accuracy: CLLocationAccuracy {
+      switch self {
+      case .bestForNavigation: return kCLLocationAccuracyBestForNavigation
+      case .best: return kCLLocationAccuracyBest
+      case .tenMeters: return kCLLocationAccuracyNearestTenMeters
+      case .hundredMeters: return kCLLocationAccuracyHundredMeters
+      case .kilometer: return kCLLocationAccuracyKilometer
+      case .threeKilometers: return kCLLocationAccuracyThreeKilometers
+      }
+    }
   }
 
   var history = [String: [Double]]()
@@ -130,13 +165,12 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     if let deviceMotion = motionManager.deviceMotion {
       let attitude = deviceMotion.attitude
       let mag = deviceMotion.magneticField
-      let heading = deviceMotion.heading
 
       logHistory(for: "Attitude roll", attitude.roll)
       logHistory(for: "Attitude pitch", attitude.pitch)
       logHistory(for: "Attitude yaw", attitude.yaw)
 
-      let deviceMotionParams: [Param] = [
+      var deviceMotionParams: [Param] = [
         ("Attitude roll", "\(attitude.roll)"),
         ("Attitude pitch", "\(attitude.pitch)"),
         ("Attitude yaw", "\(attitude.yaw)"),
@@ -149,9 +183,12 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
 
         ("Mag field", mag.field.description),
 //        ("Mag accuracy", "\(mag.accuracy.rawValue)"),
-
-        ("Heading", "\(heading)")
       ]
+
+      if #available(iOS 11.0, *) {
+        let heading = deviceMotion.heading
+        deviceMotionParams.append(("Heading", "\(heading)"))
+      }
 
       newParams[.motion] = deviceMotionParams
     }
@@ -191,15 +228,26 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    guard
-      let section = sectionForIndex(section),
-      let params = self.params[section] else {
-        return 0
+    guard let section = sectionForIndex(section) else {
+      return 0
     }
+
+    if section == .config {
+      return LocationConfigOption.all.count
+    }
+
+    guard let params = self.params[section] else {
+      return 0
+    }
+
     return params.count
   }
 
   func heightForRow(at indexPath: IndexPath) -> CGFloat {
+    if sectionForIndex(indexPath.section) == .config {
+      return 44
+    }
+
     guard let param = paramForIndexPath(indexPath),
       historyForParam(param.name) != nil else {
         return 44
@@ -216,21 +264,35 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! GraphCell
 
-    if let param = paramForIndexPath(indexPath) {
-      cell.textLabel?.text = param.name
-      cell.detailTextLabel?.text = param.value
-      cell.history = historyForParam(param.name)
-    } else {
-      cell.textLabel?.text = "No data"
-      cell.detailTextLabel?.text = nil
+    if sectionForIndex(indexPath.section) == .config {
+      let cell = tableView.dequeueReusableCell(withIdentifier: "ConfigCell")!
+      let configOption = LocationConfigOption.all[indexPath.row]
+      cell.textLabel?.text = configOption.displayValue
+      cell.accessoryType = currentOption == configOption ? .checkmark: .none
+      return cell
     }
+
+    let param = paramForIndexPath(indexPath)!
+    let cell = tableView.dequeueReusableCell(withIdentifier: "GraphCell") as! GraphCell
+    cell.textLabel?.text = param.name
+    cell.detailTextLabel?.text = param.value
+    cell.history = historyForParam(param.name)
+
     return cell
   }
 
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    guard let section = sectionForIndex(indexPath.section), let param = params[section]?[indexPath.row] else {
+    guard let section = sectionForIndex(indexPath.section) else {
+      return
+    }
+
+    if section == .config {
+      currentOption = LocationConfigOption.all[indexPath.row]
+      return
+    }
+
+    guard let param = params[section]?[indexPath.row] else {
       return
     }
     let alert = UIAlertController(title: param.name, message: param.value, preferredStyle: .alert)
