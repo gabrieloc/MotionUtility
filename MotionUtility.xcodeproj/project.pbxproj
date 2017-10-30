@@ -13,6 +13,7 @@
 		B27BBF871FA77DEC0005A164 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B27BBF861FA77DEC0005A164 /* Assets.xcassets */; };
 		B27BBF8A1FA77DEC0005A164 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27BBF881FA77DEC0005A164 /* LaunchScreen.storyboard */; };
 		B27BBF931FA77EE00005A164 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B27BBF921FA77EE00005A164 /* MapKit.framework */; };
+		B2D5CD4A1FA7A06D00AF8805 /* GraphCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D5CD491FA7A06D00AF8805 /* GraphCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		B27BBF891FA77DEC0005A164 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B27BBF8B1FA77DEC0005A164 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B27BBF921FA77EE00005A164 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		B2D5CD491FA7A06D00AF8805 /* GraphCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 			children = (
 				B27BBF7F1FA77DEC0005A164 /* AppDelegate.swift */,
 				B27BBF811FA77DEC0005A164 /* ViewController.swift */,
+				B2D5CD491FA7A06D00AF8805 /* GraphCell.swift */,
 				B27BBF831FA77DEC0005A164 /* Main.storyboard */,
 				B27BBF861FA77DEC0005A164 /* Assets.xcassets */,
 				B27BBF881FA77DEC0005A164 /* LaunchScreen.storyboard */,
@@ -153,6 +156,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D5CD4A1FA7A06D00AF8805 /* GraphCell.swift in Sources */,
 				B27BBF821FA77DEC0005A164 /* ViewController.swift in Sources */,
 				B27BBF801FA77DEC0005A164 /* AppDelegate.swift in Sources */,
 			);

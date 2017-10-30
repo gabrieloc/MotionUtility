@@ -73,13 +73,28 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     motionManager.startDeviceMotionUpdates()
     motionManager.startMagnetometerUpdates()
 
+    tableView.rowHeight = UITableViewAutomaticDimension
     tableView.reloadData()
+  }
+
+  var history = [String: [Double]]()
+
+  func logHistory(for param: String, _ value: Double) {
+    if history[param] == nil {
+      history[param] = [Double]()
+    }
+    history[param]!.append(value)
+  }
+
+  func historyForParam(_ name: String) -> [Double]? {
+    return history[name]
   }
 
   func onTick(_ timer: Timer) {
     var newParams = [Section: [Param]]()
 
     if let lastLocation = locationManager.location {
+      logHistory(for: "Altitude", lastLocation.altitude)
       newParams[.location] = [
         ("Coordinates", lastLocation.coordinate.description),
         ("Altitude", "\(lastLocation.altitude)")
@@ -103,6 +118,10 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
       let attitude = deviceMotion.attitude
       let mag = deviceMotion.magneticField
       let heading = deviceMotion.heading
+
+      logHistory(for: "Attitude roll", attitude.roll)
+      logHistory(for: "Attitude pitch", attitude.pitch)
+      logHistory(for: "Altitude yaw", attitude.yaw)
 
       let deviceMotionParams: [Param] = [
         ("Attitude roll", "\(attitude.roll)"),
@@ -159,11 +178,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    var _cell = tableView.dequeueReusableCell(withIdentifier: "Cell")
-    if _cell == nil {
-      _cell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
-    }
-    let cell = _cell!
+    let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! GraphCell
 
     if let section = sectionForIndex(indexPath.section),
       let paramGroup = params[section],
@@ -172,6 +187,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
       let param = paramGroup[indexPath.row]
       cell.textLabel?.text = param.name
       cell.detailTextLabel?.text = param.value
+      cell.history = historyForParam(param.name)
     } else {
       cell.textLabel?.text = "No data"
       cell.detailTextLabel?.text = nil
