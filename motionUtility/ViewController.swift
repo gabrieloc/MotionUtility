@@ -29,6 +29,11 @@ extension CMQuaternion {
     return String(format: "x: %.2f y: %.2f z: %.2f w: %.2f", x, y, z, w)
   }
 }
+extension CLLocationCoordinate2D {
+  var description: String {
+    return String(format: "lat: %.4f lng: %.4f", latitude, longitude)
+  }
+}
 
 class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
 
@@ -74,6 +79,13 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   func onTick(_ timer: Timer) {
     var newParams = [Section: [Param]]()
 
+    if let lastLocation = locationManager.location {
+      newParams[.location] = [
+        ("Coordinates", lastLocation.coordinate.description),
+        ("Altitude", "\(lastLocation.altitude)")
+      ]
+    }
+
     if let accelerometerData = motionManager.accelerometerData {
       let a = accelerometerData.acceleration
       newParams[.accelerometer] = [
@@ -92,11 +104,11 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
       let mag = deviceMotion.magneticField
       let heading = deviceMotion.heading
 
-      var deviceMotionParams: [Param] = [
+      let deviceMotionParams: [Param] = [
         ("Attitude roll", "\(attitude.roll)"),
         ("Attitude pitch", "\(attitude.pitch)"),
         ("Attitude yaw", "\(attitude.yaw)"),
-        ("Attitude rotation mat4", "\(attitude.rotationMatrix)"),
+//        ("Attitude rotation mat4", "\(attitude.rotationMatrix)"),
         ("Attitude quaternion", "\(attitude.quaternion.description)"),
 
         ("Rotation rate", deviceMotion.rotationRate.description),
@@ -104,7 +116,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
         ("User acceleration", deviceMotion.userAcceleration.description),
 
         ("Mag field", mag.field.description),
-        ("Mag accuracy", "\(mag.accuracy)"),
+//        ("Mag accuracy", "\(mag.accuracy.rawValue)"),
 
         ("Heading", "\(heading)")
       ]
