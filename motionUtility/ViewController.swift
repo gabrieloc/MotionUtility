@@ -10,13 +10,42 @@ import UIKit
 import MapKit
 import CoreMotion
 
-class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource, CLLocationManagerDelegate {
+protocol Vector3 {
+  var x: Double { get }
+  var y: Double { get }
+  var z: Double { get }
+}
+extension Vector3 {
+  var description: String {
+    return String(format: "x: %.2f y: %.2f z: %.2f", x, y, z)
+  }
+}
+
+extension CMAcceleration: Vector3 { }
+extension CMRotationRate: Vector3 { }
+extension CMMagneticField: Vector3 { }
+extension CMQuaternion {
+  var description: String {
+    return String(format: "x: %.2f y: %.2f z: %.2f w: %.2f", x, y, z, w)
+  }
+}
+
+class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
 
   @IBOutlet weak var mapView: MKMapView!
   @IBOutlet weak var tableView: UITableView!
 
   typealias Param = (name: String, value: String?)
-  var params = [[Param]]()
+  var params = [Section: [Param]]()
+
+  enum Section: String {
+    case location = "Location"
+    case accelerometer = "Accelerometer"
+    case gyro = "Gyroscope"
+    case motion = "Device Motion"
+
+    static let all: [Section] = [.location, .accelerometer, .gyro, .motion]
+  }
 
   let updateInterval: TimeInterval = 1.0/10.0
   let locationManager = CLLocationManager()
@@ -43,74 +72,78 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   }
 
   func onTick(_ timer: Timer) {
-    var newParams = [[Param]]()
+    var newParams = [Section: [Param]]()
 
     if let accelerometerData = motionManager.accelerometerData {
       let a = accelerometerData.acceleration
-      let acceleration = "x: \(a.x), y: \(a.y), z: \(a.z)"
-      newParams += [[("Acceleration", acceleration)]]
+      newParams[.accelerometer] = [
+        ("Acceleration", a.description)
+      ]
     }
 
     if let gyroData = motionManager.gyroData {
-      let g = gyroData.rotationRate
-      let rotation = "x: \(g.x), y: \(g.y), z: \(g.z)"
-      newParams += [[("Gyro", rotation)]]
+      newParams[.gyro] = [
+        ("Gyro", gyroData.rotationRate.description)
+      ]
     }
 
     if let deviceMotion = motionManager.deviceMotion {
-      var deviceMotionParams = [Param]()
       let attitude = deviceMotion.attitude
-      deviceMotionParams.append(("Attitude roll", "\(attitude.roll)"))
-      deviceMotionParams.append(("Attitude pitch", "\(attitude.pitch)"))
-      deviceMotionParams.append(("Attitude yaw", "\(attitude.yaw)"))
-      deviceMotionParams.append(("Attitude rotation mat4", "\(attitude.rotationMatrix)"))
-      deviceMotionParams.append(("Attitude quaternion", "\(attitude.quaternion)"))
-
-      let r = deviceMotion.rotationRate
-      let rotRate = "x: \(r.x), y: \(r.y), z: \(r.z)"
-      deviceMotionParams.append(("Rotation rate", rotRate))
-
-      let g = deviceMotion.gravity
-      let gravity = "x: \(g.x), y: \(g.y), z: \(g.z)"
-      deviceMotionParams.append(("Gravity", gravity))
-
-      let a = deviceMotion.userAcceleration
-      let userAcceleration = "x: \(a.x), y: \(a.y), z: \(a.z)"
-      deviceMotionParams.append(("User acceleration", userAcceleration))
-
       let mag = deviceMotion.magneticField
-      let f = mag.field
-      let magField = "x: \(f.x), y: \(f.y), z: \(f.z)"
-      deviceMotionParams.append(("Magnetic field", magField))
-
-      let acc = mag.accuracy
-      deviceMotionParams.append(("Magnetic field accuracy", "\(acc)"))
-
       let heading = deviceMotion.heading
-      deviceMotionParams.append(("Heading", "\(heading)"))
 
-      newParams += [deviceMotionParams]
+      var deviceMotionParams: [Param] = [
+        ("Attitude roll", "\(attitude.roll)"),
+        ("Attitude pitch", "\(attitude.pitch)"),
+        ("Attitude yaw", "\(attitude.yaw)"),
+        ("Attitude rotation mat4", "\(attitude.rotationMatrix)"),
+        ("Attitude quaternion", "\(attitude.quaternion.description)"),
+
+        ("Rotation rate", deviceMotion.rotationRate.description),
+        ("Gravity", deviceMotion.gravity.description),
+        ("User acceleration", deviceMotion.userAcceleration.description),
+
+        ("Mag field", mag.field.description),
+        ("Mag accuracy", "\(mag.accuracy)"),
+
+        ("Heading", "\(heading)")
+      ]
+
+      newParams[.motion] = deviceMotionParams
     }
 
     params = newParams
     tableView.reloadData()
   }
 
-  func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    switch section {
-    case 0: return "Accelerometer"
-    case 1: return "Gyroscope"
-    case 2: return "Device Motion"
-    default: return nil
+  func indexForSection(_ section: Section) -> Int {
+    let sections = Section.all
+    return sections.index(of: section)!
+  }
+
+  func sectionForIndex(_ section: Int) -> Section? {
+    let sections = Section.all
+    guard sections.count > section else {
+      return nil
     }
+    return sections[section]
+  }
+
+  func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    return sectionForIndex(section)?.rawValue
   }
 
   func numberOfSections(in tableView: UITableView) -> Int {
-    return 3
+    return Section.all.count
   }
 
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return params.count > section ? max(1, params[section].count) : 0
+    guard
+      let section = sectionForIndex(section),
+      let params = self.params[section] else {
+        return 0
+    }
+    return params.count
   }
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -119,8 +152,11 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
       _cell = UITableViewCell(style: .value1, reuseIdentifier: "Cell")
     }
     let cell = _cell!
-    let paramGroup = params[indexPath.section]
-    if paramGroup.count > indexPath.row {
+
+    if let section = sectionForIndex(indexPath.section),
+      let paramGroup = params[section],
+      paramGroup.count > indexPath.row {
+
       let param = paramGroup[indexPath.row]
       cell.textLabel?.text = param.name
       cell.detailTextLabel?.text = param.value
@@ -129,6 +165,15 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
       cell.detailTextLabel?.text = nil
     }
     return cell
+  }
+
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    guard let section = sectionForIndex(indexPath.section), let param = params[section]?[indexPath.row] else {
+      return
+    }
+    let alert = UIAlertController(title: param.name, message: param.value, preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+    present(alert, animated: true, completion: nil)
   }
 
   func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {

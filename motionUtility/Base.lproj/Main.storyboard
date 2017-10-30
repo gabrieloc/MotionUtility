@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -13,22 +14,27 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="motion_test" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="motionUtility" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ZJT-rr-gim">
-                                <rect key="frame" x="0.0" y="0.0" width="374" height="280.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="281.66666666666669"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="ZJT-rr-gim" secondAttribute="height" multiplier="4:3" id="MaP-ag-quC"/>
                                 </constraints>
+                                <variation key="heightClass=compact">
+                                    <mask key="constraints">
+                                        <exclude reference="MaP-ag-quC"/>
+                                    </mask>
+                                </variation>
                                 <connections>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="S50-va-hbS"/>
                                 </connections>
                             </mapView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Jrd-UY-yGg">
-                                <rect key="frame" x="0.0" y="280.5" width="374" height="386.5"/>
+                                <rect key="frame" x="0.0" y="281.66666666666674" width="375" height="496.33333333333326"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <outlet property="dataSource" destination="BYZ-38-t0r" id="ZzK-bH-Kkg"/>
@@ -38,15 +44,38 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="Jrd-UY-yGg" firstAttribute="width" secondItem="ZJT-rr-gim" secondAttribute="width" id="Ez4-1t-V8T"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Jrd-UY-yGg" secondAttribute="trailing" id="6Zx-HA-r9x"/>
+                            <constraint firstItem="ZJT-rr-gim" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="2:5" id="7gc-8z-skL"/>
+                            <constraint firstItem="Jrd-UY-yGg" firstAttribute="leading" secondItem="ZJT-rr-gim" secondAttribute="trailing" id="8aC-4S-h0u"/>
+                            <constraint firstAttribute="bottom" secondItem="ZJT-rr-gim" secondAttribute="bottom" id="D5O-07-Pro"/>
                             <constraint firstItem="Jrd-UY-yGg" firstAttribute="leading" secondItem="ZJT-rr-gim" secondAttribute="leading" id="J9a-vf-deL"/>
                             <constraint firstItem="ZJT-rr-gim" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="UKh-7V-adk"/>
+                            <constraint firstItem="Jrd-UY-yGg" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="cj3-bY-pBP"/>
                             <constraint firstItem="Jrd-UY-yGg" firstAttribute="top" secondItem="ZJT-rr-gim" secondAttribute="bottom" id="dXO-qC-JFz"/>
                             <constraint firstItem="ZJT-rr-gim" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="jku-SU-oaI"/>
                             <constraint firstItem="ZJT-rr-gim" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="nRz-hK-MDY"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Jrd-UY-yGg" secondAttribute="bottom" id="vke-M5-mHZ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="D5O-07-Pro"/>
+                                <exclude reference="7gc-8z-skL"/>
+                                <exclude reference="8aC-4S-h0u"/>
+                                <exclude reference="cj3-bY-pBP"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=compact">
+                            <mask key="constraints">
+                                <include reference="D5O-07-Pro"/>
+                                <include reference="7gc-8z-skL"/>
+                                <exclude reference="UKh-7V-adk"/>
+                                <include reference="8aC-4S-h0u"/>
+                                <exclude reference="J9a-vf-deL"/>
+                                <include reference="cj3-bY-pBP"/>
+                                <exclude reference="dXO-qC-JFz"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="mapView" destination="ZJT-rr-gim" id="BXX-PP-a8I"/>
@@ -55,7 +84,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="140" y="133.5832083958021"/>
+            <point key="canvasLocation" x="139.65517241379311" y="132"/>
         </scene>
     </scenes>
 </document>
