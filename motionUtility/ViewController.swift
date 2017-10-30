@@ -191,8 +191,8 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
   func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
     let camera = MKMapCamera(
       lookingAtCenter: userLocation.coordinate,
-      fromDistance: 70,
-      pitch: 0,
+      fromDistance: 200,
+      pitch: 15,
       heading: 0
     )
     mapView.setCamera(camera, animated: true)
