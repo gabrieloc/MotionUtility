@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  motion-test
+//  motionUtility
 //
 //  Created by Gabriel O'Flaherty-Chan on 2017-10-30.
 //  Copyright © 2017 gabrieloc. All rights reserved.
