@@ -52,7 +52,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     static let all: [Section] = [.location, .accelerometer, .gyro, .motion]
   }
 
-  let updateInterval: TimeInterval = 1.0/10.0
+  let updateInterval: TimeInterval = 1.0/60.0
   let locationManager = CLLocationManager()
   let motionManager = CMMotionManager()
 
@@ -73,7 +73,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     motionManager.startDeviceMotionUpdates()
     motionManager.startMagnetometerUpdates()
 
-    tableView.rowHeight = UITableViewAutomaticDimension
+//    tableView.rowHeight = UITableViewAutomaticDimension
     tableView.reloadData()
   }
 
@@ -90,15 +90,28 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     return history[name]
   }
 
+  let dateFormatter = DateFormatter()
+
   func onTick(_ timer: Timer) {
     var newParams = [Section: [Param]]()
 
     if let lastLocation = locationManager.location {
       logHistory(for: "Altitude", lastLocation.altitude)
+      logHistory(for: "Speed", lastLocation.speed)
+      logHistory(for: "Course", lastLocation.course)
+
       newParams[.location] = [
         ("Coordinates", lastLocation.coordinate.description),
-        ("Altitude", "\(lastLocation.altitude)")
+        ("Altitude", "\(lastLocation.altitude)"),
+        ("Speed", "\(lastLocation.speed)"),
+        ("Course", "\(lastLocation.course)"),
+        ("Timestamp", "\(lastLocation.timestamp)"),
       ]
+
+      if let floor = lastLocation.floor {
+        logHistory(for: "Floor", Double(floor.level))
+        newParams[.location]?.append(("Floor", "\(floor.level)"))
+      }
     }
 
     if let accelerometerData = motionManager.accelerometerData {
@@ -121,7 +134,7 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
 
       logHistory(for: "Attitude roll", attitude.roll)
       logHistory(for: "Attitude pitch", attitude.pitch)
-      logHistory(for: "Attitude yaw", attitude.yaw)
+      logHistory(for: "Attitude yaw", attitude.yaw)
 
       let deviceMotionParams: [Param] = [
         ("Attitude roll", "\(attitude.roll)"),
@@ -160,6 +173,15 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     return sections[section]
   }
 
+  func paramForIndexPath(_ indexPath: IndexPath) -> Param? {
+    guard let section = sectionForIndex(indexPath.section),
+      let params = self.params[section],
+      params.count > indexPath.row else {
+        return nil
+    }
+    return params[indexPath.row]
+  }
+
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
     return sectionForIndex(section)?.rawValue
   }
@@ -177,14 +199,26 @@ class ViewController: UIViewController, MKMapViewDelegate, UITableViewDataSource
     return params.count
   }
 
+  func heightForRow(at indexPath: IndexPath) -> CGFloat {
+    guard let param = paramForIndexPath(indexPath),
+      historyForParam(param.name) != nil else {
+        return 44
+    }
+    return 120
+  }
+
+  func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    return heightForRow(at: indexPath)
+  }
+
+  func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    return heightForRow(at: indexPath)
+  }
+
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! GraphCell
 
-    if let section = sectionForIndex(indexPath.section),
-      let paramGroup = params[section],
-      paramGroup.count > indexPath.row {
-
-      let param = paramGroup[indexPath.row]
+    if let param = paramForIndexPath(indexPath) {
       cell.textLabel?.text = param.name
       cell.detailTextLabel?.text = param.value
       cell.history = historyForParam(param.name)

@@ -44,20 +44,20 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="116.66666666666667"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="M5P-fa-zAq">
-                                                    <rect key="frame" x="8.3333333333333428" y="8" width="358.66666666666663" height="101"/>
+                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="M5P-fa-zAq">
+                                                    <rect key="frame" x="0.0" y="8" width="375" height="101"/>
                                                     <subviews>
                                                         <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZUN-uh-dMm">
-                                                            <rect key="frame" x="0.0" y="0.0" width="358.66666666666669" height="21"/>
+                                                            <rect key="frame" x="16" y="0.0" width="343" height="10"/>
                                                             <subviews>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QY6-OD-o52">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="321.33333333333337" height="21"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="305.66666666666669" height="10"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8qV-Oa-veo">
-                                                                    <rect key="frame" x="321.33333333333337" y="0.0" width="37.333333333333314" height="21"/>
+                                                                    <rect key="frame" x="305.66666666666674" y="0.0" width="37.333333333333314" height="10"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                                     <color key="textColor" red="0.52871780778894473" green="0.52871780778894473" blue="0.52871780778894473" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                     <nil key="highlightedColor"/>
@@ -65,20 +65,22 @@
                                                             </subviews>
                                                         </stackView>
                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VVE-xW-qCY" customClass="Graph" customModule="motionUtility" customModuleProvider="target">
-                                                            <rect key="frame" x="0.0" y="21" width="358.66666666666669" height="80"/>
+                                                            <rect key="frame" x="0.0" y="18" width="375" height="83"/>
                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="height" constant="80" id="ifU-ko-2kc"/>
-                                                            </constraints>
                                                         </view>
                                                     </subviews>
+                                                    <constraints>
+                                                        <constraint firstItem="ZUN-uh-dMm" firstAttribute="leading" secondItem="M5P-fa-zAq" secondAttribute="leading" constant="16" id="PuO-PE-eSK"/>
+                                                        <constraint firstAttribute="trailing" secondItem="ZUN-uh-dMm" secondAttribute="trailing" constant="16" id="mMS-w3-ffJ"/>
+                                                    </constraints>
                                                 </stackView>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstAttribute="bottom" secondItem="M5P-fa-zAq" secondAttribute="bottom" constant="8" id="BFI-ov-nLr"/>
+                                                <constraint firstItem="VVE-xW-qCY" firstAttribute="width" secondItem="Wap-3T-Xs8" secondAttribute="width" id="D9b-tR-lDN"/>
                                                 <constraint firstItem="M5P-fa-zAq" firstAttribute="top" secondItem="Wap-3T-Xs8" secondAttribute="top" constant="8" id="Omx-Ct-lkX"/>
-                                                <constraint firstAttribute="trailing" secondItem="M5P-fa-zAq" secondAttribute="trailing" constant="8" id="pS1-mj-3ks"/>
-                                                <constraint firstItem="M5P-fa-zAq" firstAttribute="leading" secondItem="Wap-3T-Xs8" secondAttribute="leading" constant="8" id="vKd-CG-14I"/>
+                                                <constraint firstAttribute="trailing" secondItem="M5P-fa-zAq" secondAttribute="trailing" id="pS1-mj-3ks"/>
+                                                <constraint firstItem="M5P-fa-zAq" firstAttribute="leading" secondItem="Wap-3T-Xs8" secondAttribute="leading" id="vKd-CG-14I"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
@@ -111,16 +113,16 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="D5O-07-Pro"/>
                                 <exclude reference="7gc-8z-skL"/>
+                                <exclude reference="D5O-07-Pro"/>
                                 <exclude reference="8aC-4S-h0u"/>
                                 <exclude reference="cj3-bY-pBP"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
                             <mask key="constraints">
-                                <include reference="D5O-07-Pro"/>
                                 <include reference="7gc-8z-skL"/>
+                                <include reference="D5O-07-Pro"/>
                                 <exclude reference="UKh-7V-adk"/>
                                 <include reference="8aC-4S-h0u"/>
                                 <exclude reference="J9a-vf-deL"/>

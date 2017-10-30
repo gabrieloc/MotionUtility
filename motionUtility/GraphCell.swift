@@ -17,31 +17,46 @@ class Graph: UIView {
     setNeedsDisplay()
   }
 
+  func visiblePoints(in rect: CGRect) -> [CGPoint] {
+    let range = visibleRange(in: rect)
+    return (range.startIndex..<range.endIndex).map { pointAtIndex($0, rect: rect) }
+  }
+
+  func visibleHistory(in rect: CGRect) -> [Double] {
+    let range = visibleRange(in: rect)
+    return Array(history[range.startIndex..<range.endIndex])
+  }
+
+  func visibleRange(in rect: CGRect) -> (startIndex: Int, endIndex: Int) {
+    let maxVisible = Int(rect.width / columnWidth)
+    let startIndex = max(0, history.count - maxVisible)
+    return (startIndex, (min(startIndex + maxVisible, history.endIndex)))
+  }
+
   func pointAtIndex(_ index: Int, rect: CGRect) -> CGPoint {
-    let (min, max) = (history.min()!, history.max()!)
-    let safeRect = rect.insetBy(dx: 0, dy: 4)
+    let visible = visibleHistory(in: rect)
+
+    let (min, max) = (visible.min()!, visible.max()!)
     let value = history[index]
     let maxVisible = Int(rect.width / columnWidth)
     let x = CGFloat(index) * columnWidth
-    let offsetX = x - Swift.max(0, CGFloat(history.count - maxVisible) * columnWidth)
+    let xOffset = CGFloat(history.count - maxVisible) * columnWidth
     return CGPoint(
-      x: offsetX,
-      y: safeRect.height * CGFloat(value - min) / CGFloat(max - min)
+      x: x - Swift.max(0, xOffset),
+      y: rect.height * CGFloat(value - min) / CGFloat(max - min)
     )
   }
 
   override func draw(_ rect: CGRect) {
     tintColor.set()
     let context = UIGraphicsGetCurrentContext()!
-    let points = (0..<history.count).map { pointAtIndex($0, rect: rect) }
-    let maxVisible = Int(rect.width / columnWidth)
-    var visiblePoints = points
-    if points.count > maxVisible {
-      let startIndex = points.count - maxVisible
-      visiblePoints = Array(points[startIndex ..< points.endIndex])
-    }
-    context.addLines(between: visiblePoints)
+    let points = visiblePoints(in: rect)
+    context.addLines(between: points)
     context.strokePath()
+  }
+
+  override var intrinsicContentSize: CGSize {
+    return CGSize(width: UIViewNoIntrinsicMetric, height: 80)
   }
 }
 
